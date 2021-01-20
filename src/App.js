@@ -5,29 +5,45 @@ import Image3 from "./images/image3.jpg";
 import Image4 from "./images/image4.jpg";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Select from 'react-select'
 
 function App() {
-  const [currenyExchange, setcurrenyExchange] = useState("");
-  useEffect(() => {
-    axios.get("https://api.exchangeratesapi.io/latest?base=INR").then((res) => {
-      setcurrenyExchange(res.data.rates.USD);
-    });
-  }, []);
+
+  const handleChange = (option) => {
+    setcurrenyExchange(option)
+    if (option.value === 'Rupees') {
+      setexchangeValue(1)
+    }
+    else {
+      axios.get("https://api.exchangeratesapi.io/latest?base=INR").then((res) => {
+        setexchangeValue(res.data.rates.USD);
+      });
+    }
+  }
+
+  const options = [
+    { value: 'Rupees', label: 'INR' },
+    { value: 'Dollars', label: 'USD' }
+  ];
+
+  const [currenyExchange, setcurrenyExchange] = useState('');
+  const [exchangeValue, setexchangeValue] = useState(1);
+
   const Data = [
     {
-      pricing: "100 Rupees",
+      pricing: exchangeValue === 1 ? 100 : 100 * exchangeValue,
       imageURL: Image1,
     },
     {
-      pricing: "120 Rupees",
+      pricing: exchangeValue === 1 ? 120 : 120 * exchangeValue,
       imageURL: Image2,
     },
     {
-      pricing: "140 Rupees",
+      pricing: exchangeValue === 1 ? 140 : 140 * exchangeValue,
       imageURL: Image3,
     },
     {
-      pricing: "160 Rupees",
+      pricing: exchangeValue === 1 ? 160 : 160 * exchangeValue,
       imageURL: Image4,
     },
   ];
@@ -42,10 +58,18 @@ function App() {
               height="150px"
               width="150px"
             ></img>
-            <div className="priceDiv">{data.pricing}</div>
+            <div className="priceDiv">{data.pricing}{exchangeValue === 1 ? "Rupees" : "dollars"}</div>
           </div>
         );
       })}
+      <div className="currencyClass">
+        currency
+        <Select
+          value={currenyExchange}
+          onChange={handleChange}
+          options={options}
+        />
+      </div>
     </div>
   );
 }
